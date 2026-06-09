@@ -593,6 +593,9 @@
       height: 100%;
       object-fit: cover;
       object-position: center 30%;
+      animation: heroFadeUp 1.2s ease forwards;
+      animation-delay: 0.2s;
+      opacity: 0;
     }
 
     /* 사진 없을 때 플레이스홀더 */
@@ -671,8 +674,8 @@
       flex-direction: column;
       align-items: center;
       gap: 4px;
-      opacity: .55;
-      animation: bounce 2s infinite;
+      opacity: 0;
+      animation: heroFadeUp 0.8s ease forwards 2.1s, bounce 2s ease 2.9s infinite;
     }
 
     .cover-scroll span {
@@ -855,6 +858,42 @@
       line-height: 1.8;
       font-weight: 300;
       word-break: keep-all;
+    }
+
+    /* ── HERO ANIMATION ── */
+    @keyframes heroFadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .cover-label {
+      animation: heroFadeUp 0.8s ease forwards;
+      animation-delay: 0.9s;
+      opacity: 0;
+    }
+
+    .cover-names {
+      animation: heroFadeUp 0.8s ease forwards;
+      animation-delay: 1.2s;
+      opacity: 0;
+    }
+
+    .cover-divider {
+      animation: heroFadeUp 0.8s ease forwards;
+      animation-delay: 1.5s;
+      opacity: 0;
+    }
+
+    .cover-date {
+      animation: heroFadeUp 0.8s ease forwards;
+      animation-delay: 1.7s;
+      opacity: 0;
+    }
+
+    .cover-scroll {
+      animation: heroFadeUp 0.8s ease forwards;
+      animation-delay: 2.1s;
+      opacity: 0;
     }
 
     /* ── SCROLL ANIMATION ── */
