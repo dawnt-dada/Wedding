@@ -1095,11 +1095,10 @@
 <!-- ── TOAST ── -->
 <div class="toast" id="toast"></div>
 
-<script src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=8qkvhgjwxa"></script>
 <script>
   /* 네이버 지도 */
-  window.addEventListener('load', () => {
-    const location = new naver.maps.LatLng(37.5750, 126.8936);
+  function initNaverMap() {
+    const location = new naver.maps.LatLng(37.5752, 126.8934);
     const map = new naver.maps.Map('naver-map', {
       center: location,
       zoom: 17,
@@ -1108,7 +1107,15 @@
       mapDataControl: false,
     });
     new naver.maps.Marker({ position: location, map });
-  });
+  }
+
+  const naverScript = document.createElement('script');
+  naverScript.src = 'https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=8qkvhgjwxa&callback=initNaverMap';
+  naverScript.onerror = () => {
+    document.getElementById('naver-map').innerHTML =
+      '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:13px;color:#607080;">지도를 불러오지 못했습니다</div>';
+  };
+  document.head.appendChild(naverScript);
 
   /* 카운트다운 */
   const weddingDate = new Date('2026-10-11T15:00:00+09:00');
