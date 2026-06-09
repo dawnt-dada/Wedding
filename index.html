@@ -317,6 +317,41 @@
       cursor: pointer;
       background: none; border: none;
       font-family: Helvetica, sans-serif;
+      z-index: 2;
+    }
+
+    .lightbox-prev, .lightbox-next {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,.15);
+      border: none;
+      color: white;
+      font-size: 36px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      transition: background .2s;
+    }
+
+    .lightbox-prev { left: 16px; }
+    .lightbox-next { right: 16px; }
+    .lightbox-prev:hover, .lightbox-next:hover { background: rgba(255,255,255,.3); }
+
+    .lightbox-counter {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: Helvetica, sans-serif;
+      font-size: 12px;
+      color: rgba(255,255,255,.6);
+      letter-spacing: 2px;
     }
 
     /* ── MAP ── */
@@ -651,7 +686,7 @@
       background: var(--white);
       border: 1px solid rgba(196,86,106,.15);
       padding: 20px;
-      margin-top: 100px;
+      margin-top: 70px;
       margin-bottom: 32px;
       border-radius: 10px;
     }
@@ -704,10 +739,13 @@
       font-family: Helvetica, 'Helvetica Neue', Arial, sans-serif;
       font-size: 12px;
       color: var(--text);
-      padding: 6px 2px;
       font-weight: 300;
-      border-radius: 50%;
+      border-radius: 6px;
       line-height: 1;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .cal-day.sun { color: var(--rose); }
@@ -718,13 +756,7 @@
       background: var(--rose);
       color: white !important;
       font-weight: 500;
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto;
-      border-radius: 50%;
+      border-radius: 6px;
     }
 
     /* ── GUESTBOOK ── */
@@ -990,7 +1022,10 @@
 <!-- 라이트박스 -->
 <div class="lightbox" id="lightbox">
   <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <button class="lightbox-prev" onclick="changePhoto(-1)">&#8249;</button>
   <img id="lightbox-img" src="" alt="" />
+  <button class="lightbox-next" onclick="changePhoto(1)">&#8250;</button>
+  <div class="lightbox-counter" id="lightbox-counter"></div>
 </div>
 
 <!-- ── 오시는 길 ── -->
@@ -1193,13 +1228,29 @@
     setTimeout(() => t.classList.remove('show'), 2200);
   }
 
-  /* 갤러리 라이트박스 */
-  document.querySelectorAll('.g-item img').forEach(img => {
-    img.addEventListener('click', () => {
-      document.getElementById('lightbox-img').src = img.src;
-      document.getElementById('lightbox').classList.add('open');
-    });
+  /* 갤러리 라이트박스 + 스와이프 */
+  const galleryImgs = Array.from(document.querySelectorAll('.g-item img'));
+  let currentIdx = 0;
+
+  galleryImgs.forEach((img, i) => {
+    img.addEventListener('click', () => openLightbox(i));
   });
+
+  function openLightbox(idx) {
+    currentIdx = idx;
+    updateLightbox();
+    document.getElementById('lightbox').classList.add('open');
+  }
+
+  function updateLightbox() {
+    document.getElementById('lightbox-img').src = galleryImgs[currentIdx].src;
+    document.getElementById('lightbox-counter').textContent = `${currentIdx + 1} / ${galleryImgs.length}`;
+  }
+
+  function changePhoto(dir) {
+    currentIdx = (currentIdx + dir + galleryImgs.length) % galleryImgs.length;
+    updateLightbox();
+  }
 
   function closeLightbox() {
     document.getElementById('lightbox').classList.remove('open');
@@ -1207,6 +1258,24 @@
 
   document.getElementById('lightbox').addEventListener('click', e => {
     if (e.target === e.currentTarget) closeLightbox();
+  });
+
+  /* 키보드 화살표 */
+  document.addEventListener('keydown', e => {
+    if (!document.getElementById('lightbox').classList.contains('open')) return;
+    if (e.key === 'ArrowLeft') changePhoto(-1);
+    if (e.key === 'ArrowRight') changePhoto(1);
+    if (e.key === 'Escape') closeLightbox();
+  });
+
+  /* 터치 스와이프 */
+  let touchStartX = 0;
+  document.getElementById('lightbox').addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+  });
+  document.getElementById('lightbox').addEventListener('touchend', e => {
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) changePhoto(diff > 0 ? 1 : -1);
   });
 
   /* ── Supabase 방명록 ── */
