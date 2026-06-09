@@ -914,11 +914,22 @@
     .fade-up.delay-4 { transition-delay: 0.4s; }
 
     /* ── BGM 버튼 ── */
-    .bgm-btn {
+    .bgm-wrap {
       position: fixed;
       bottom: 32px;
-      right: 20px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: flex-end;
+      max-width: 480px;
+      margin: 0 auto;
+      padding-right: 20px;
       z-index: 900;
+      pointer-events: none;
+    }
+
+    .bgm-btn {
+      pointer-events: all;
       padding: 9px 14px;
       border-radius: 20px;
       background: var(--dark);
@@ -1270,9 +1281,11 @@
   <source src="music/사랑으로.mp3" type="audio/mpeg" />
 </audio>
 
-<button class="bgm-btn" id="bgm-btn">
-  <span id="bgm-label">♪ 음악 OFF</span>
-</button>
+<div class="bgm-wrap">
+  <button class="bgm-btn" id="bgm-btn">
+    <span id="bgm-label">♪ 음악 OFF</span>
+  </button>
+</div>
 
 <!-- ── TOAST ── -->
 <div class="toast" id="toast"></div>
@@ -1506,18 +1519,21 @@
   }
 
   /* 페이지 로드 시 자동재생 시도 */
-  bgm.play().then(() => {
-    setPlaying(true);
-  }).catch(() => {
-    /* 브라우저 정책으로 막히면 첫 터치 시 재생 */
-    setPlaying(false);
-    const autoStart = () => {
-      bgm.play().then(() => setPlaying(true)).catch(() => {});
-      document.removeEventListener('click', autoStart);
-      document.removeEventListener('touchstart', autoStart);
-    };
-    document.addEventListener('click', autoStart);
-    document.addEventListener('touchstart', autoStart);
+  window.addEventListener('load', () => {
+    bgm.play().then(() => {
+      setPlaying(true);
+    }).catch(() => {
+      /* 브라우저 정책으로 막히면 첫 터치 시 재생 */
+      setPlaying(false);
+      const autoStart = (e) => {
+        if (e.target === bgmBtn || bgmBtn.contains(e.target)) return;
+        bgm.play().then(() => setPlaying(true)).catch(() => {});
+        document.removeEventListener('click', autoStart);
+        document.removeEventListener('touchstart', autoStart);
+      };
+      document.addEventListener('click', autoStart);
+      document.addEventListener('touchstart', autoStart);
+    });
   });
 
   /* 버튼으로 on/off */
