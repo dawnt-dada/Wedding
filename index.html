@@ -449,14 +449,16 @@
 
     .account-info { font-size: 13px; line-height: 1.8; }
     .account-info .bank {
-      font-family: Helvetica, 'Helvetica Neue', Arial, sans-serif;
-      color: var(--muted); font-size: 10px; letter-spacing: 2px;
+      font-family: 'Pretendard', sans-serif;
+      color: var(--muted); font-size: 12px; font-weight: 400;
+      display: block; margin-bottom: 2px;
     }
     .account-info .num {
       font-family: Helvetica, 'Helvetica Neue', Arial, sans-serif;
-      color: var(--dark); font-size: 16px; font-weight: 400; letter-spacing: 1px;
+      color: var(--dark); font-size: 15px; font-weight: 400; letter-spacing: 0.5px;
+      display: block;
     }
-    .account-info .name { color: var(--muted); font-size: 12px; font-weight: 300; }
+    .account-info .name { color: var(--muted); font-size: 11px; font-weight: 300; display: block; margin-top: 2px; }
 
     .copy-btn {
       background: none;
@@ -1082,61 +1084,51 @@
   <div class="account-tabs">
     <button class="account-tab active" onclick="switchTab('groom')">신랑측</button>
     <button class="account-tab" onclick="switchTab('bride')">신부측</button>
-    <button class="account-tab" onclick="switchTab('parents')">혼주측</button>
   </div>
 
+  <!-- 신랑측 : 신랑 + 혼주 2명 -->
   <div class="account-panel active" id="tab-groom">
     <div class="account-row">
       <div class="account-info">
         <span class="bank">우리은행</span>
-        <span class="num">1002-360-002930</span>
-        <span class="name">이은혁 (신랑)</span>
+        <span class="num">1002-360-002930 &nbsp;이은혁</span>
+        <span class="name">신랑</span>
       </div>
-      <button class="copy-btn" onclick="copyAccount('1002-360-002930', this)">복사</button>
+      <button class="copy-btn" onclick="copyAccount('1002360002930', this)">복사</button>
+    </div>
+    <div class="account-row">
+      <div class="account-info">
+        <span class="bank">은행명</span>
+        <span class="num">계좌번호 &nbsp;예금주</span>
+        <span class="name">신랑 아버지</span>
+      </div>
+      <button class="copy-btn" onclick="copyAccount('계좌번호', this)">복사</button>
+    </div>
+    <div class="account-row">
+      <div class="account-info">
+        <span class="bank">은행명</span>
+        <span class="num">계좌번호 &nbsp;예금주</span>
+        <span class="name">신랑 어머니</span>
+      </div>
+      <button class="copy-btn" onclick="copyAccount('계좌번호', this)">복사</button>
     </div>
   </div>
 
+  <!-- 신부측 : 신부 + 혼주 1명 -->
   <div class="account-panel" id="tab-bride">
     <div class="account-row">
       <div class="account-info">
         <span class="bank">우리은행</span>
-        <span class="num">1002-453-039753</span>
-        <span class="name">한다원 (신부)</span>
+        <span class="num">1002-453-039753 &nbsp;한다원</span>
+        <span class="name">신부</span>
       </div>
-      <button class="copy-btn" onclick="copyAccount('1002-453-039753', this)">복사</button>
-    </div>
-  </div>
-
-  <div class="account-panel" id="tab-parents">
-    <div class="account-row">
-      <div class="account-info">
-        <span class="bank">은행명</span>
-        <span class="num">계좌번호</span>
-        <span class="name">예금주 (신랑 부)</span>
-      </div>
-      <button class="copy-btn" onclick="copyAccount('계좌번호', this)">복사</button>
+      <button class="copy-btn" onclick="copyAccount('1002453039753', this)">복사</button>
     </div>
     <div class="account-row">
       <div class="account-info">
         <span class="bank">은행명</span>
-        <span class="num">계좌번호</span>
-        <span class="name">예금주 (신랑 모)</span>
-      </div>
-      <button class="copy-btn" onclick="copyAccount('계좌번호', this)">복사</button>
-    </div>
-    <div class="account-row">
-      <div class="account-info">
-        <span class="bank">은행명</span>
-        <span class="num">계좌번호</span>
-        <span class="name">예금주 (신부 부)</span>
-      </div>
-      <button class="copy-btn" onclick="copyAccount('계좌번호', this)">복사</button>
-    </div>
-    <div class="account-row">
-      <div class="account-info">
-        <span class="bank">은행명</span>
-        <span class="num">계좌번호</span>
-        <span class="name">예금주 (신부 모)</span>
+        <span class="num">계좌번호 &nbsp;예금주</span>
+        <span class="name">신부 어머니</span>
       </div>
       <button class="copy-btn" onclick="copyAccount('계좌번호', this)">복사</button>
     </div>
