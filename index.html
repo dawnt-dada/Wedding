@@ -1451,6 +1451,21 @@
   fetchMessages();
 
   /* ── 스크롤 애니메이션 ── */
+  const skipIds = ['lightbox', 'toast', 'gb-list'];
+  const skipClasses = ['account-panel', 'lightbox', 'cover-img', 'cover-overlay', 'cover-placeholder'];
+
+  document.querySelectorAll(
+    'section > *, .section-label, .section-title, .section-divider'
+  ).forEach((el, i) => {
+    if (skipIds.includes(el.id)) return;
+    if (skipClasses.some(c => el.classList.contains(c))) return;
+    if (el.tagName === 'SCRIPT') return;
+    el.classList.add('fade-up');
+    if (i % 4 === 1) el.classList.add('delay-1');
+    if (i % 4 === 2) el.classList.add('delay-2');
+    if (i % 4 === 3) el.classList.add('delay-3');
+  });
+
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -1458,7 +1473,7 @@
         observer.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.12 });
+  }, { threshold: 0.08 });
 
   document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 </script>
