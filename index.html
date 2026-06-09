@@ -857,6 +857,23 @@
       word-break: keep-all;
     }
 
+    /* ── SCROLL ANIMATION ── */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(36px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .fade-up.delay-1 { transition-delay: 0.1s; }
+    .fade-up.delay-2 { transition-delay: 0.2s; }
+    .fade-up.delay-3 { transition-delay: 0.3s; }
+    .fade-up.delay-4 { transition-delay: 0.4s; }
+
     /* ── DIVIDER ── */
     .section-divider {
       display: flex;
@@ -910,7 +927,7 @@
 <section>
   <p class="section-label">Greeting</p>
   <div class="section-divider"><span>✦</span></div>
-  <div class="greeting-text">
+  <div class="greeting-text fade-up">
     <span class="quote">" 함께라서 더 아름다운 날 "</span>
     서로를 마주보며 키워 온 사랑<br/>
     이제는 한 곳을 바라보며<br/>
@@ -918,7 +935,7 @@
     저희 두 사람이 사랑으로 하나 되는<br/>
     소중한 자리에 함께해 주세요.
   </div>
-  <div class="family-names">
+  <div class="family-names fade-up delay-1">
     신랑 이은혁의 혼인을 알립니다<br/>
     신부 한다원의 혼인을 알립니다
   </div>
@@ -929,7 +946,7 @@
   <p class="section-label">D-Day</p>
   <div class="section-divider"><span>✦</span></div>
   <h2 class="section-title">결혼식까지</h2>
-  <div class="countdown-wrap">
+  <div class="countdown-wrap fade-up">
     <div class="countdown-item">
       <span class="countdown-num" id="days">--</span>
       <span class="countdown-label">DAYS</span>
@@ -947,7 +964,7 @@
       <span class="countdown-label">SECS</span>
     </div>
   </div>
-  <div class="calendar">
+  <div class="calendar fade-up delay-1">
     <div class="cal-header">
       <span class="cal-month">10월</span>
       <span class="cal-year">2026</span>
@@ -1004,7 +1021,7 @@
   <p class="section-label">Gallery</p>
   <div class="section-divider"><span>✦</span></div>
   <h2 class="section-title">우리의 이야기</h2>
-  <div class="gallery-grid" id="gallery">
+  <div class="gallery-grid fade-up" id="gallery">
     <div class="g-item"><img src="photos/1.jpg" alt="" /></div>
     <div class="g-item"><img src="photos/2.jpg" alt="" /></div>
     <div class="g-item"><img src="photos/3.jpg" alt="" /></div>
@@ -1037,7 +1054,7 @@
   <div class="section-divider"><span>✦</span></div>
   <h2 class="section-title">오시는 길</h2>
 
-  <div class="map-box">
+  <div class="map-box fade-up">
     <iframe
       src="https://www.openstreetmap.org/export/embed.html?bbox=126.8930%2C37.5736%2C126.9030%2C37.5796&layer=mapnik&marker=37.5766%2C126.8980"
       style="width:100%;height:220px;border:none;display:block;"
@@ -1046,13 +1063,13 @@
     </iframe>
   </div>
 
-  <div class="venue-info">
+  <div class="venue-info fade-up delay-1">
     <strong>DMC 타워 웨딩 4층</strong>
     서울특별시 마포구 성암로 189 중소기업디엠씨타워 4층<br/>
     2026년 10월 11일 (일) 오후 3시
   </div>
 
-  <div class="map-btns">
+  <div class="map-btns fade-up delay-2">
     <a class="map-btn"
        href="https://map.kakao.com/?q=서울특별시 마포구 성암로 189 중소기업디엠씨타워 4층"
        target="_blank" rel="noopener">
@@ -1083,7 +1100,7 @@
   <div class="section-divider"><span>✦</span></div>
   <h2 class="section-title">마음 전하기</h2>
 
-  <div class="account-tabs">
+  <div class="account-tabs fade-up">
     <button class="account-tab active" onclick="switchTab('groom')">신랑측</button>
     <button class="account-tab" onclick="switchTab('bride')">신부측</button>
   </div>
@@ -1143,7 +1160,7 @@
   <div class="section-divider"><span>✦</span></div>
   <h2 class="section-title">화환 보내기</h2>
 
-  <div class="flower-box">
+  <div class="flower-box fade-up">
     <div class="flower-icon">💐</div>
     <div class="flower-info">
       <strong>화환 배송지</strong>
@@ -1162,7 +1179,7 @@
   <div class="section-divider"><span>✦</span></div>
   <h2 class="section-title">축하 메시지</h2>
 
-  <div class="gb-form">
+  <div class="gb-form fade-up">
     <input class="gb-input" id="gb-name" type="text" placeholder="이름" maxlength="20" />
     <textarea class="gb-textarea" id="gb-message" placeholder="축하 메시지를 남겨주세요 💌" maxlength="200" rows="4"></textarea>
     <button class="gb-submit" onclick="submitMessage()">메시지 남기기</button>
@@ -1393,6 +1410,18 @@
   }
 
   fetchMessages();
+
+  /* ── 스크롤 애니메이션 ── */
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 </script>
 </body>
 </html>
