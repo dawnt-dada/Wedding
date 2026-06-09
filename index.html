@@ -1116,7 +1116,8 @@
       document.getElementById('hours').textContent = '0';
       document.getElementById('mins').textContent = '0';
       document.getElementById('secs').textContent = '0';
-      document.getElementById('dday-label').textContent = '🎊 결혼식 당일입니다! 축하합니다 🎊';
+      const ddayEl = document.getElementById('dday-label');
+      if (ddayEl) ddayEl.textContent = '🎊 결혼식 당일입니다! 축하합니다 🎊';
       return;
     }
 
@@ -1129,7 +1130,8 @@
     document.getElementById('hours').textContent = String(h).padStart(2, '0');
     document.getElementById('mins').textContent = String(m).padStart(2, '0');
     document.getElementById('secs').textContent = String(s).padStart(2, '0');
-    document.getElementById('dday-label').textContent = `결혼식까지 D-${d}`;
+    const ddayEl2 = document.getElementById('dday-label');
+    if (ddayEl2) ddayEl2.textContent = `결혼식까지 D-${d}`;
   }
 
   updateCountdown();
