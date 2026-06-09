@@ -913,6 +913,35 @@
     .fade-up.delay-3 { transition-delay: 0.3s; }
     .fade-up.delay-4 { transition-delay: 0.4s; }
 
+    /* ── BGM 버튼 ── */
+    .bgm-btn {
+      position: fixed;
+      bottom: 32px;
+      right: 20px;
+      z-index: 900;
+      padding: 9px 14px;
+      border-radius: 20px;
+      background: var(--dark);
+      color: var(--sky-light);
+      border: none;
+      cursor: pointer;
+      font-family: 'Pretendard', sans-serif;
+      font-size: 11px;
+      letter-spacing: 1px;
+      font-weight: 400;
+      box-shadow: 0 4px 16px rgba(37,48,64,.25);
+      transition: background .2s, transform .2s;
+      animation: bgmPulse 2.5s ease infinite;
+    }
+
+    .bgm-btn:hover { background: var(--rose); transform: scale(1.04); }
+    .bgm-btn.playing { background: var(--rose); animation: none; }
+
+    @keyframes bgmPulse {
+      0%, 100% { box-shadow: 0 4px 16px rgba(37,48,64,.25); }
+      50% { box-shadow: 0 4px 24px rgba(196,86,106,.45); }
+    }
+
     /* ── DIVIDER ── */
     .section-divider {
       display: flex;
@@ -1236,6 +1265,15 @@
   DMC 타워 웨딩 4층
 </footer>
 
+<!-- ── BGM ── -->
+<audio id="bgm" loop>
+  <source src="music/사랑으로.mp3" type="audio/mpeg" />
+</audio>
+
+<button class="bgm-btn" id="bgm-btn">
+  <span id="bgm-label">♪ 음악 OFF</span>
+</button>
+
 <!-- ── TOAST ── -->
 <div class="toast" id="toast"></div>
 
@@ -1449,6 +1487,49 @@
   }
 
   fetchMessages();
+
+  /* ── BGM ── */
+  const bgm = document.getElementById('bgm');
+  const bgmBtn = document.getElementById('bgm-btn');
+  const bgmLabel = document.getElementById('bgm-label');
+
+  bgm.volume = 0.4;
+
+  function setPlaying(playing) {
+    if (playing) {
+      bgmBtn.classList.add('playing');
+      bgmLabel.textContent = '♪ 음악 ON';
+    } else {
+      bgmBtn.classList.remove('playing');
+      bgmLabel.textContent = '♪ 음악 OFF';
+    }
+  }
+
+  /* 페이지 로드 시 자동재생 시도 */
+  bgm.play().then(() => {
+    setPlaying(true);
+  }).catch(() => {
+    /* 브라우저 정책으로 막히면 첫 터치 시 재생 */
+    setPlaying(false);
+    const autoStart = () => {
+      bgm.play().then(() => setPlaying(true)).catch(() => {});
+      document.removeEventListener('click', autoStart);
+      document.removeEventListener('touchstart', autoStart);
+    };
+    document.addEventListener('click', autoStart);
+    document.addEventListener('touchstart', autoStart);
+  });
+
+  /* 버튼으로 on/off */
+  bgmBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (bgm.paused) {
+      bgm.play().then(() => setPlaying(true));
+    } else {
+      bgm.pause();
+      setPlaying(false);
+    }
+  });
 
   /* ── 스크롤 애니메이션 ── */
   const skipIds = ['lightbox', 'toast', 'gb-list'];
