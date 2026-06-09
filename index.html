@@ -717,6 +717,98 @@
       border-radius: 50%;
     }
 
+    /* ── GUESTBOOK ── */
+    .gb-form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+
+    .gb-input, .gb-textarea {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid rgba(196,86,106,.2);
+      background: var(--white);
+      font-family: 'Pretendard', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      transition: border-color .2s;
+      resize: none;
+    }
+
+    .gb-input:focus, .gb-textarea:focus {
+      border-color: var(--rose);
+    }
+
+    .gb-input::placeholder, .gb-textarea::placeholder {
+      color: var(--muted);
+      font-weight: 300;
+    }
+
+    .gb-submit {
+      padding: 14px;
+      background: var(--dark);
+      color: var(--sky-light);
+      border: none;
+      font-family: 'Pretendard', sans-serif;
+      font-size: 13px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: background .2s;
+    }
+
+    .gb-submit:hover { background: var(--rose); }
+
+    .gb-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .gb-loading {
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 300;
+      padding: 20px 0;
+    }
+
+    .gb-item {
+      background: var(--white);
+      border: 1px solid rgba(196,86,106,.12);
+      padding: 18px 20px;
+    }
+
+    .gb-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .gb-item-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--rose);
+    }
+
+    .gb-item-date {
+      font-family: Helvetica, sans-serif;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 1px;
+    }
+
+    .gb-item-msg {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.8;
+      font-weight: 300;
+      word-break: keep-all;
+    }
+
     /* ── DIVIDER ── */
     .section-divider {
       display: flex;
@@ -989,16 +1081,15 @@
   <div class="section-divider"><span>✦</span></div>
   <h2 class="section-title">축하 메시지</h2>
 
-  <a class="guestbook-btn"
-     href="https://forms.gle/YOUR_GOOGLE_FORM_ID"
-     target="_blank" rel="noopener"
-     id="guestbook-link">
-    ✉ 축하 메시지 남기기
-  </a>
-  <p class="guestbook-note">
-    구글 폼 링크를 만드신 후 위 버튼의 주소를 교체해 주세요.<br/>
-    Google Forms → 공유 → 링크 복사 후 id 부분을 변경하시면 됩니다.
-  </p>
+  <div class="gb-form">
+    <input class="gb-input" id="gb-name" type="text" placeholder="이름" maxlength="20" />
+    <textarea class="gb-textarea" id="gb-message" placeholder="축하 메시지를 남겨주세요 💌" maxlength="200" rows="4"></textarea>
+    <button class="gb-submit" onclick="submitMessage()">메시지 남기기</button>
+  </div>
+
+  <div class="gb-list" id="gb-list">
+    <p class="gb-loading">메시지를 불러오는 중...</p>
+  </div>
 </section>
 
 <!-- ── FOOTER ── -->
@@ -1097,6 +1188,83 @@
   document.getElementById('lightbox').addEventListener('click', e => {
     if (e.target === e.currentTarget) closeLightbox();
   });
+
+  /* ── Supabase 방명록 ── */
+  const SUPABASE_URL = 'https://djogxyauuwmfiopvmbus.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_v3Z-44Ipe8U4TuP3ZvyQnQ_Jvn-CAQb';
+
+  async function fetchMessages() {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/guestbook?order=id.desc`, {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`
+      }
+    });
+    const data = await res.json();
+    const list = document.getElementById('gb-list');
+
+    if (!data.length) {
+      list.innerHTML = '<p class="gb-loading">아직 메시지가 없어요. 첫 번째로 남겨주세요 💌</p>';
+      return;
+    }
+
+    list.innerHTML = data.map(item => `
+      <div class="gb-item">
+        <div class="gb-item-header">
+          <span class="gb-item-name">${escapeHtml(item.name)}</span>
+          <span class="gb-item-date">${formatDate(item.created_at)}</span>
+        </div>
+        <p class="gb-item-msg">${escapeHtml(item.message)}</p>
+      </div>
+    `).join('');
+  }
+
+  async function submitMessage() {
+    const name = document.getElementById('gb-name').value.trim();
+    const message = document.getElementById('gb-message').value.trim();
+
+    if (!name) { showToast('이름을 입력해 주세요'); return; }
+    if (!message) { showToast('메시지를 입력해 주세요'); return; }
+
+    const btn = document.querySelector('.gb-submit');
+    btn.textContent = '전송 중...';
+    btn.disabled = true;
+
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/guestbook`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ name, message })
+    });
+
+    btn.textContent = '메시지 남기기';
+    btn.disabled = false;
+
+    if (res.ok) {
+      document.getElementById('gb-name').value = '';
+      document.getElementById('gb-message').value = '';
+      showToast('메시지가 등록됐어요 💌');
+      fetchMessages();
+    } else {
+      showToast('오류가 발생했어요. 다시 시도해 주세요');
+    }
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  fetchMessages();
 </script>
 </body>
 </html>
