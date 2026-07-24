@@ -297,26 +297,21 @@
 
     .gallery-slider .g-item:active img { transform: scale(1.03); }
 
-    .gallery-dots {
-      display: flex;
-      justify-content: center;
-      gap: 7px;
-      margin-top: 18px;
-      flex-wrap: wrap;
+    .gallery-count {
+      text-align: center;
+      margin-top: 20px;
+      font-family: 'Helvetica Neue', Helvetica, sans-serif;
+      font-size: 15px;
+      letter-spacing: 2px;
+      color: var(--muted);
     }
-    .gallery-dots span {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--sky-deep);
-      opacity: .45;
-      transition: all .25s;
+    .gallery-count .cur {
+      color: var(--rose);
+      font-weight: 500;
     }
-    .gallery-dots span.active {
-      opacity: 1;
-      background: var(--rose);
-      width: 20px;
-      border-radius: 4px;
+    .gallery-count .sep {
+      margin: 0 8px;
+      opacity: .5;
     }
 
     .g-placeholder {
@@ -365,6 +360,9 @@
       max-width: calc(90vw - 80px);
       max-height: 80vh;
       object-fit: contain;
+      transform-origin: center center;
+      touch-action: none;
+      will-change: transform;
     }
 
     .lightbox-prev, .lightbox-next {
@@ -1162,7 +1160,9 @@
     <div class="g-item"><img src="photos/13.jpg" alt="" /></div>
     <div class="g-item"><img src="photos/14.jpg" alt="" /></div>
   </div>
-  <div class="gallery-dots fade-up" id="gallery-dots"></div>
+  <div class="gallery-count fade-up" id="gallery-count">
+    <span class="cur" id="gallery-cur">1</span><span class="sep">/</span><span class="total" id="gallery-total">14</span>
+  </div>
 </section>
 
 <!-- 라이트박스 -->
@@ -1418,55 +1418,71 @@
     setTimeout(() => t.classList.remove('show'), 2200);
   }
 
-  /* 갤러리 슬라이더 + 도트 */
+  /* 갤러리 슬라이더 + 숫자 카운터 */
   const galleryImgs = Array.from(document.querySelectorAll('.g-item img'));
   const gallerySlider = document.getElementById('gallery');
   const galleryItems = Array.from(gallerySlider.querySelectorAll('.g-item'));
-  const dotsWrap = document.getElementById('gallery-dots');
+  const galleryCur = document.getElementById('gallery-cur');
+  const galleryTotal = document.getElementById('gallery-total');
   let currentIdx = 0;
+
+  if (galleryTotal) galleryTotal.textContent = galleryItems.length;
 
   galleryImgs.forEach((img, i) => {
     img.addEventListener('click', () => openLightbox(i));
   });
 
-  /* 도트 생성 */
-  galleryItems.forEach((item, i) => {
-    const dot = document.createElement('span');
-    if (i === 0) dot.classList.add('active');
-    dot.addEventListener('click', () => {
-      item.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  /* 스크롤 위치에 따라 현재 번호 갱신 */
+  function updateGalleryCount() {
+    const center = gallerySlider.scrollLeft + gallerySlider.clientWidth / 2;
+    let closest = 0, min = Infinity;
+    galleryItems.forEach((item, i) => {
+      const c = item.offsetLeft + item.offsetWidth / 2;
+      const d = Math.abs(c - center);
+      if (d < min) { min = d; closest = i; }
     });
-    dotsWrap.appendChild(dot);
-  });
-  const dots = Array.from(dotsWrap.children);
+    if (galleryCur) galleryCur.textContent = closest + 1;
+  }
+  gallerySlider.addEventListener('scroll', updateGalleryCount, { passive: true });
 
-  /* 스크롤 위치에 따라 활성 도트 갱신 */
-  let scrollRAF = null;
-  gallerySlider.addEventListener('scroll', () => {
-    if (scrollRAF) return;
-    scrollRAF = requestAnimationFrame(() => {
-      const center = gallerySlider.scrollLeft + gallerySlider.clientWidth / 2;
-      let closest = 0, min = Infinity;
-      galleryItems.forEach((item, i) => {
-        const c = item.offsetLeft + item.offsetWidth / 2;
-        const d = Math.abs(c - center);
-        if (d < min) { min = d; closest = i; }
-      });
-      dots.forEach((dot, i) => dot.classList.toggle('active', i === closest));
-      scrollRAF = null;
-    });
-  }, { passive: true });
+  const lb = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lightbox-img');
+
+  /* 확대/이동 상태 */
+  let scale = 1, tx = 0, ty = 0;
+
+  function applyTransform() {
+    lbImg.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+  }
+  function clampPan() {
+    const maxX = Math.max(0, (lbImg.offsetWidth  * scale - lbImg.offsetWidth)  / 2 + 20);
+    const maxY = Math.max(0, (lbImg.offsetHeight * scale - lbImg.offsetHeight) / 2 + 20);
+    tx = Math.min(Math.max(tx, -maxX), maxX);
+    ty = Math.min(Math.max(ty, -maxY), maxY);
+  }
+  function resetZoom(animate) {
+    scale = 1; tx = 0; ty = 0;
+    if (animate) {
+      lbImg.style.transition = 'transform .25s';
+      applyTransform();
+      setTimeout(() => { lbImg.style.transition = ''; }, 260);
+    } else {
+      lbImg.style.transition = '';
+      applyTransform();
+    }
+  }
 
   function openLightbox(idx) {
     currentIdx = idx;
     updateLightbox();
-    document.getElementById('lightbox').classList.add('open');
+    lb.classList.add('open');
     document.body.style.overflow = 'hidden';
   }
 
   function updateLightbox() {
-    document.getElementById('lightbox-img').src = galleryImgs[currentIdx].src;
+    lbImg.src = galleryImgs[currentIdx].src;
     document.getElementById('lightbox-counter').textContent = `${currentIdx + 1} / ${galleryImgs.length}`;
+    resetZoom(false);
   }
 
   function changePhoto(dir) {
@@ -1475,41 +1491,88 @@
   }
 
   function closeLightbox() {
-    document.getElementById('lightbox').classList.remove('open');
+    lb.classList.remove('open');
     document.body.style.overflow = '';
+    resetZoom(false);
   }
 
-  document.getElementById('lightbox').addEventListener('click', e => {
-    if (e.target === e.currentTarget) closeLightbox();
+  lb.addEventListener('click', e => {
+    if (e.target === e.currentTarget && scale <= 1.02) closeLightbox();
   });
 
   /* 키보드 화살표 */
   document.addEventListener('keydown', e => {
-    if (!document.getElementById('lightbox').classList.contains('open')) return;
+    if (!lb.classList.contains('open')) return;
     if (e.key === 'ArrowLeft') changePhoto(-1);
     if (e.key === 'ArrowRight') changePhoto(1);
     if (e.key === 'Escape') closeLightbox();
   });
 
-  /* 터치 스와이프 — 배경 스크롤 차단 */
-  let touchStartX = 0;
-  let touchStartY = 0;
-  const lb = document.getElementById('lightbox');
+  /* 터치: 손가락 두 개 핀치 확대 / 확대 시 한 손가락 이동 / 기본은 좌우 스와이프 */
+  let mode = null;              // 'pinch' | 'pan' | 'swipe'
+  let startDist = 0, startScale = 1;
+  let startMidX = 0, startMidY = 0, startTx = 0, startTy = 0;
+  let panStartX = 0, panStartY = 0;
+  let swipeStartX = 0, swipeStartY = 0;
+
+  function touchDist(t) {
+    return Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+  }
 
   lb.addEventListener('touchstart', e => {
-    touchStartX = e.touches[0].clientX;
-    touchStartY = e.touches[0].clientY;
+    if (e.touches.length === 2) {
+      mode = 'pinch';
+      startDist = touchDist(e.touches);
+      startScale = scale;
+      startMidX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+      startMidY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+      startTx = tx; startTy = ty;
+    } else if (e.touches.length === 1) {
+      if (scale > 1) {
+        mode = 'pan';
+        panStartX = e.touches[0].clientX - tx;
+        panStartY = e.touches[0].clientY - ty;
+      } else {
+        mode = 'swipe';
+        swipeStartX = e.touches[0].clientX;
+        swipeStartY = e.touches[0].clientY;
+      }
+    }
   }, { passive: true });
 
   lb.addEventListener('touchmove', e => {
     e.preventDefault();
+    if (mode === 'pinch' && e.touches.length === 2) {
+      const d = touchDist(e.touches);
+      scale = Math.min(Math.max(startScale * (d / startDist), 1), 4);
+      const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+      const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+      tx = startTx + (midX - startMidX);
+      ty = startTy + (midY - startMidY);
+      clampPan();
+      applyTransform();
+    } else if (mode === 'pan' && e.touches.length === 1) {
+      tx = e.touches[0].clientX - panStartX;
+      ty = e.touches[0].clientY - panStartY;
+      clampPan();
+      applyTransform();
+    }
   }, { passive: false });
 
   lb.addEventListener('touchend', e => {
-    const diffX = touchStartX - e.changedTouches[0].clientX;
-    const diffY = touchStartY - e.changedTouches[0].clientY;
-    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 40) {
-      changePhoto(diffX > 0 ? 1 : -1);
+    if (mode === 'pinch') {
+      if (scale <= 1.02) resetZoom(true);
+      mode = null;
+      return;
+    }
+    if (mode === 'pan') { mode = null; return; }
+    if (mode === 'swipe') {
+      const diffX = swipeStartX - e.changedTouches[0].clientX;
+      const diffY = swipeStartY - e.changedTouches[0].clientY;
+      if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 40) {
+        changePhoto(diffX > 0 ? 1 : -1);
+      }
+      mode = null;
     }
   });
 
