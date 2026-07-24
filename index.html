@@ -265,29 +265,59 @@
       font-weight: 300;
     }
 
-    /* ── GALLERY ── */
-    .gallery-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 6px;
+    /* ── GALLERY (슬라이드) ── */
+    .gallery-slider {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding: 2px 0 4px;
+      scroll-padding: 0 11%;
     }
+    .gallery-slider::-webkit-scrollbar { display: none; }
 
-    .gallery-grid .g-item {
+    .gallery-slider .g-item {
+      flex: 0 0 78%;
       aspect-ratio: 3 / 4;
       background: linear-gradient(135deg, var(--sky-light), var(--sky-deep));
       overflow: hidden;
       cursor: pointer;
-      border-radius: 10px;
+      border-radius: 14px;
+      scroll-snap-align: center;
     }
 
-    .gallery-grid .g-item img {
+    .gallery-slider .g-item img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       transition: transform .4s;
     }
 
-    .gallery-grid .g-item:hover img { transform: scale(1.08); }
+    .gallery-slider .g-item:active img { transform: scale(1.03); }
+
+    .gallery-dots {
+      display: flex;
+      justify-content: center;
+      gap: 7px;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+    .gallery-dots span {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--sky-deep);
+      opacity: .45;
+      transition: all .25s;
+    }
+    .gallery-dots span.active {
+      opacity: 1;
+      background: var(--rose);
+      width: 20px;
+      border-radius: 4px;
+    }
 
     .g-placeholder {
       width: 100%;
@@ -1116,7 +1146,7 @@
   <p class="section-label">Gallery</p>
   <div class="section-divider"><span>✦</span></div>
   <h2 class="section-title">우리의 이야기</h2>
-  <div class="gallery-grid fade-up" id="gallery">
+  <div class="gallery-slider fade-up" id="gallery">
     <div class="g-item"><img src="photos/1.jpg" alt="" /></div>
     <div class="g-item"><img src="photos/2.jpg" alt="" /></div>
     <div class="g-item"><img src="photos/3.jpg" alt="" /></div>
@@ -1132,6 +1162,7 @@
     <div class="g-item"><img src="photos/13.jpg" alt="" /></div>
     <div class="g-item"><img src="photos/14.jpg" alt="" /></div>
   </div>
+  <div class="gallery-dots fade-up" id="gallery-dots"></div>
 </section>
 
 <!-- 라이트박스 -->
@@ -1268,7 +1299,7 @@
       DMC 타워 웨딩<br/>
       서울특별시 마포구 성암로 189 중소기업디엠씨타워 4층<br/><br/>
       <span style="font-size:12px;color:var(--muted)">
-        ※ 배송 시 예식 당일 (2026.10.11) 오전 중 도착 부탁드립니다
+        ※ 배송 시 예식 당일 (2026.10.11) 예식 1시간 전 도착 부탁드립니다
       </span>
     </div>
   </div>
@@ -1387,13 +1418,44 @@
     setTimeout(() => t.classList.remove('show'), 2200);
   }
 
-  /* 갤러리 라이트박스 + 스와이프 */
+  /* 갤러리 슬라이더 + 도트 */
   const galleryImgs = Array.from(document.querySelectorAll('.g-item img'));
+  const gallerySlider = document.getElementById('gallery');
+  const galleryItems = Array.from(gallerySlider.querySelectorAll('.g-item'));
+  const dotsWrap = document.getElementById('gallery-dots');
   let currentIdx = 0;
 
   galleryImgs.forEach((img, i) => {
     img.addEventListener('click', () => openLightbox(i));
   });
+
+  /* 도트 생성 */
+  galleryItems.forEach((item, i) => {
+    const dot = document.createElement('span');
+    if (i === 0) dot.classList.add('active');
+    dot.addEventListener('click', () => {
+      item.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    });
+    dotsWrap.appendChild(dot);
+  });
+  const dots = Array.from(dotsWrap.children);
+
+  /* 스크롤 위치에 따라 활성 도트 갱신 */
+  let scrollRAF = null;
+  gallerySlider.addEventListener('scroll', () => {
+    if (scrollRAF) return;
+    scrollRAF = requestAnimationFrame(() => {
+      const center = gallerySlider.scrollLeft + gallerySlider.clientWidth / 2;
+      let closest = 0, min = Infinity;
+      galleryItems.forEach((item, i) => {
+        const c = item.offsetLeft + item.offsetWidth / 2;
+        const d = Math.abs(c - center);
+        if (d < min) { min = d; closest = i; }
+      });
+      dots.forEach((dot, i) => dot.classList.toggle('active', i === closest));
+      scrollRAF = null;
+    });
+  }, { passive: true });
 
   function openLightbox(idx) {
     currentIdx = idx;
@@ -1573,13 +1635,29 @@
   });
 
   /* 버튼으로 on/off */
+  let userWantsMusic = false;
   bgmBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     if (bgm.paused) {
+      userWantsMusic = true;
       bgm.play().then(() => setPlaying(true));
     } else {
+      userWantsMusic = false;
       bgm.pause();
       setPlaying(false);
+    }
+  });
+
+  /* 화면이 꺼지거나 다른 앱으로 가면 음악 정지, 돌아오면 재생 중이었을 때만 재개 */
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      if (!bgm.paused) {
+        userWantsMusic = true;
+        bgm.pause();
+        setPlaying(false);
+      }
+    } else if (userWantsMusic) {
+      bgm.play().then(() => setPlaying(true)).catch(() => {});
     }
   });
 
