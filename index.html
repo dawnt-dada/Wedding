@@ -522,6 +522,122 @@
 
     .copy-btn:hover, .copy-btn.copied { background: var(--rose); color: white; }
 
+    /* ── 혼주 연락처 ── */
+    .contact-wrap {
+      display: flex;
+      gap: 10px;
+      margin-top: 26px;
+    }
+    .contact-open-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 15px 10px;
+      background: var(--white);
+      border: 1px solid rgba(196,86,106,.25);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Pretendard', sans-serif;
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: .5px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .contact-open-btn:hover { background: var(--rose); border-color: var(--rose); color: #fff; }
+    .contact-open-btn svg { width: 16px; height: 16px; }
+
+    .contact-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(37,48,64,.55);
+      z-index: 1100;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .contact-modal.open { display: flex; }
+    .contact-box {
+      position: relative;
+      width: 100%;
+      max-width: 340px;
+      background: var(--white);
+      border-radius: 16px;
+      padding: 34px 26px 30px;
+      text-align: center;
+      box-shadow: 0 12px 40px rgba(37,48,64,.2);
+      animation: contactPop .28s ease;
+    }
+    @keyframes contactPop {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .contact-close {
+      position: absolute;
+      top: 14px; right: 16px;
+      background: none; border: none;
+      font-size: 20px;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: Helvetica, sans-serif;
+      line-height: 1;
+    }
+    .contact-sub {
+      font-size: 12px;
+      color: var(--rose);
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+    .contact-title {
+      font-size: 19px;
+      font-weight: 500;
+      color: var(--dark);
+      margin-bottom: 24px;
+    }
+    .contact-person {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 4px;
+      border-top: 1px solid rgba(196,86,106,.12);
+    }
+    .contact-person:last-child { border-bottom: 1px solid rgba(196,86,106,.12); }
+    .contact-role {
+      font-size: 14px;
+      color: var(--text);
+      font-weight: 400;
+    }
+    .contact-role b {
+      color: var(--muted);
+      font-weight: 400;
+      font-size: 12px;
+      margin-right: 8px;
+    }
+    .contact-actions { display: flex; gap: 10px; }
+    .contact-icon-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      width: 48px;
+      padding: 8px 0;
+      border: 1px solid rgba(196,86,106,.3);
+      border-radius: 10px;
+      color: var(--rose);
+      text-decoration: none;
+      transition: all .2s;
+    }
+    .contact-icon-btn:hover { background: var(--rose); border-color: var(--rose); color: #fff; }
+    .contact-icon-btn svg {
+      width: 20px; height: 20px;
+      stroke: currentColor; stroke-width: 1.4;
+      fill: none; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .contact-icon-btn span { font-size: 10px; letter-spacing: .5px; }
+
     /* ── FLOWER ── */
     .flower-box {
       background: var(--white);
@@ -1284,7 +1400,76 @@
       <button class="copy-btn" onclick="copyAccount('27320023193', this)">복사</button>
     </div>
   </div>
+
+  <!-- 혼주에게 연락하기 -->
+  <div class="contact-wrap fade-up">
+    <button class="contact-open-btn" onclick="openContact('groom')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      신랑 혼주 연락처
+    </button>
+    <button class="contact-open-btn" onclick="openContact('bride')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      신부 혼주 연락처
+    </button>
+  </div>
 </section>
+
+<!-- 신랑 혼주 연락 모달 -->
+<div class="contact-modal" id="contact-groom">
+  <div class="contact-box">
+    <button class="contact-close" onclick="closeContact('groom')">✕</button>
+    <p class="contact-sub">신랑 이은혁</p>
+    <h3 class="contact-title">신랑 혼주 연락하기</h3>
+    <div class="contact-person">
+      <span class="contact-role"><b>부</b>이요하</span>
+      <div class="contact-actions">
+        <a class="contact-icon-btn" href="tel:01099811886">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          <span>전화</span>
+        </a>
+        <a class="contact-icon-btn" href="sms:01099811886">
+          <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          <span>문자</span>
+        </a>
+      </div>
+    </div>
+    <div class="contact-person">
+      <span class="contact-role"><b>모</b>김명례</span>
+      <div class="contact-actions">
+        <a class="contact-icon-btn" href="tel:01072221886">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          <span>전화</span>
+        </a>
+        <a class="contact-icon-btn" href="sms:01072221886">
+          <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          <span>문자</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 신부 혼주 연락 모달 -->
+<div class="contact-modal" id="contact-bride">
+  <div class="contact-box">
+    <button class="contact-close" onclick="closeContact('bride')">✕</button>
+    <p class="contact-sub">신부 한다원</p>
+    <h3 class="contact-title">신부 혼주 연락하기</h3>
+    <div class="contact-person">
+      <span class="contact-role"><b>모</b>이재은</span>
+      <div class="contact-actions">
+        <a class="contact-icon-btn" href="tel:01090908960">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          <span>전화</span>
+        </a>
+        <a class="contact-icon-btn" href="sms:01090908960">
+          <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          <span>문자</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ── 화환 ── -->
 <section>
@@ -1385,6 +1570,28 @@
     document.getElementById('tab-' + who).classList.add('active');
     event.currentTarget.classList.add('active');
   }
+
+  /* 혼주 연락 모달 */
+  function openContact(who) {
+    document.getElementById('contact-' + who).classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeContact(who) {
+    document.getElementById('contact-' + who).classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  /* 배경 클릭 / ESC 로 닫기 */
+  document.querySelectorAll('.contact-modal').forEach(m => {
+    m.addEventListener('click', e => {
+      if (e.target === m) { m.classList.remove('open'); document.body.style.overflow = ''; }
+    });
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    document.querySelectorAll('.contact-modal.open').forEach(m => {
+      m.classList.remove('open'); document.body.style.overflow = '';
+    });
+  });
 
 
   /* 계좌번호 복사 */
