@@ -34,37 +34,6 @@
       overflow-x: hidden;
     }
 
-    /* ── 떨어지는 꽃잎 ── */
-    .petals {
-      position: fixed;
-      top: 0; left: 50%;
-      transform: translateX(-50%);
-      width: 100%; max-width: 480px; height: 100%;
-      pointer-events: none;
-      overflow: hidden;
-      z-index: -1;
-    }
-    .petal-fall {
-      position: absolute;
-      top: -12vh;
-      will-change: transform;
-      animation: petalFall linear infinite;
-    }
-    @keyframes petalFall {
-      0%   { transform: translateY(-12vh); }
-      100% { transform: translateY(118vh); }
-    }
-    .petal-sway {
-      animation: petalSway ease-in-out infinite alternate;
-    }
-    @keyframes petalSway {
-      from { transform: translateX(-18px) rotate(-35deg); }
-      to   { transform: translateX(18px)  rotate(35deg); }
-    }
-    .petal-sway svg { display: block; filter: blur(0.6px); }
-    @media (prefers-reduced-motion: reduce) {
-      .petals { display: none; }
-    }
 
     /* Helvetica for latin/number */
     .latin {
@@ -197,10 +166,10 @@
     /* ── SECTION BASE ── */
     section {
       padding: 60px 28px;
-      background: transparent;
+      background: var(--sky);
       position: relative;
     }
-    section:nth-child(even) { background: rgba(255,255,255,.18); }
+    section:nth-child(even) { background: var(--sky-light); }
 
     .section-label {
       font-family: Helvetica, 'Helvetica Neue', Arial, sans-serif;
@@ -1166,9 +1135,6 @@
 </head>
 <body>
 
-<!-- ── 떨어지는 꽃잎 ── -->
-<div class="petals" id="petals" aria-hidden="true"></div>
-
 <!-- ── COVER (풀페이지 히어로) ── -->
 <div class="cover">
   <!-- 사진을 photos/hero.jpg로 저장하면 자동 표시됩니다 -->
@@ -2002,41 +1968,6 @@
   }, { threshold: 0.08 });
 
   document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
-
-  /* ── 떨어지는 꽃잎 생성 ── */
-  (function () {
-    const layer = document.getElementById('petals');
-    if (!layer) return;
-    const colors = ['#c4566a', '#b23a52', '#d76b7c', '#e8907a'];
-    const PETAL = '<svg viewBox="0 0 40 48"><path d="M20 2 C33 6,40 22,30 40 C26 46,14 46,10 40 C0 22,7 6,20 2 Z"/></svg>';
-    const N = 18;
-    for (let i = 0; i < N; i++) {
-      const fall = document.createElement('div');
-      fall.className = 'petal-fall';
-      const sway = document.createElement('div');
-      sway.className = 'petal-sway';
-      sway.innerHTML = PETAL;
-
-      const size = 7 + Math.random() * 9;        // 7~16px (작게)
-      const fallDur = 11 + Math.random() * 9;    // 11~20초 (천천히)
-      const swayDur = 3 + Math.random() * 3;     // 3~6초
-
-      fall.style.left = (Math.random() * 100) + '%';
-      fall.style.animationDuration = fallDur + 's';
-      fall.style.animationDelay = (-Math.random() * fallDur) + 's';
-      sway.style.animationDuration = swayDur + 's';
-      sway.style.animationDelay = (-Math.random() * swayDur) + 's';
-
-      const svg = sway.querySelector('svg');
-      svg.style.width = size + 'px';
-      svg.style.height = (size * 1.2) + 'px';
-      svg.style.opacity = (0.28 + Math.random() * 0.22).toFixed(2); // 0.28~0.5 (은은하게)
-      svg.querySelector('path').setAttribute('fill', colors[i % colors.length]);
-
-      fall.appendChild(sway);
-      layer.appendChild(fall);
-    }
-  })();
 </script>
 </body>
 </html>
