@@ -42,7 +42,7 @@
       width: 100%; max-width: 480px; height: 100%;
       pointer-events: none;
       overflow: hidden;
-      z-index: 60;
+      z-index: -1;
     }
     .petal-fall {
       position: absolute;
@@ -61,7 +61,7 @@
       from { transform: translateX(-18px) rotate(-35deg); }
       to   { transform: translateX(18px)  rotate(35deg); }
     }
-    .petal-sway svg { display: block; }
+    .petal-sway svg { display: block; filter: blur(0.6px); }
     @media (prefers-reduced-motion: reduce) {
       .petals { display: none; }
     }
@@ -197,10 +197,10 @@
     /* ── SECTION BASE ── */
     section {
       padding: 60px 28px;
-      background: var(--sky);
+      background: transparent;
       position: relative;
     }
-    section:nth-child(even) { background: var(--sky-light); }
+    section:nth-child(even) { background: rgba(255,255,255,.18); }
 
     .section-label {
       font-family: Helvetica, 'Helvetica Neue', Arial, sans-serif;
@@ -2017,9 +2017,9 @@
       sway.className = 'petal-sway';
       sway.innerHTML = PETAL;
 
-      const size = 10 + Math.random() * 14;      // 10~24px
-      const fallDur = 9 + Math.random() * 8;     // 9~17초
-      const swayDur = 2.5 + Math.random() * 2.5; // 2.5~5초
+      const size = 7 + Math.random() * 9;        // 7~16px (작게)
+      const fallDur = 11 + Math.random() * 9;    // 11~20초 (천천히)
+      const swayDur = 3 + Math.random() * 3;     // 3~6초
 
       fall.style.left = (Math.random() * 100) + '%';
       fall.style.animationDuration = fallDur + 's';
@@ -2030,7 +2030,7 @@
       const svg = sway.querySelector('svg');
       svg.style.width = size + 'px';
       svg.style.height = (size * 1.2) + 'px';
-      svg.style.opacity = (0.5 + Math.random() * 0.3).toFixed(2);
+      svg.style.opacity = (0.28 + Math.random() * 0.22).toFixed(2); // 0.28~0.5 (은은하게)
       svg.querySelector('path').setAttribute('fill', colors[i % colors.length]);
 
       fall.appendChild(sway);
